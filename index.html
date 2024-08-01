@@ -21,6 +21,10 @@
       padding: 10px;
       border: 1px solid #ddd;
       border-radius: 5px;
+      transition: box-shadow 0.3s;
+    }
+    .item:hover {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
     .item img {
       max-width: 100%;
@@ -29,6 +33,10 @@
     }
     .item h3 {
       margin-top: 0;
+    }
+    .item a {
+      text-decoration: none;
+      color: inherit;
     }
   </style>
 </head>
@@ -39,23 +47,41 @@
   <script>
     const rssFeedUrl = 'https://script.google.com/macros/s/AKfycbx6k0-G1Uv6YHdMg2RP3uuFgrNVt1OgzWzchIKC53dXFut7EXNw4VlpWxN9M9_YSEM/exec';
 
-    fetch(rssFeedUrl)
-      .then(response => response.json())
-      .then(data => {
-        const container = document.getElementById('rss-feed');
-        data.forEach(item => {
-          const itemDiv = document.createElement('div');
-          itemDiv.className = 'item';
-          itemDiv.innerHTML = `
+    async function fetchRSSFeed() {
+      try {
+        const response = await fetch(rssFeedUrl);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        displayRSSItems(data);
+      } catch (error) {
+        console.error('Error fetching the RSS feed:', error);
+      }
+    }
+
+    function displayRSSItems(data) {
+      const container = document.getElementById('rss-feed');
+      const fragment = document.createDocumentFragment();
+
+      data.forEach(item => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'item';
+        itemDiv.innerHTML = `
+          <a href="${item.link}" target="_blank">
             <img src="${item.imageUrl}" alt="${item.title}">
             <h3>${item.title}</h3>
             <p>${item.content}</p>
-            <a href="${item.link}" target="_blank">Read more</a>
-          `;
-          container.appendChild(itemDiv);
-        });
-      })
-      .catch(error => console.error('Error fetching the RSS feed:', error));
+          </a>
+        `;
+        fragment.appendChild(itemDiv);
+      });
+
+      container.appendChild(fragment);
+    }
+
+    // Initiate fetching RSS feed
+    fetchRSSFeed();
   </script>
 </body>
 </html>
