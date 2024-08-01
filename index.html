@@ -30,6 +30,7 @@
       max-width: 100%;
       height: auto;
       border-radius: 5px;
+      display: block;
     }
     .item h3 {
       margin-top: 0;
@@ -49,7 +50,7 @@
 
     async function fetchRSSFeed() {
       try {
-        const response = await fetch(rssFeedUrl);
+        const response = await fetch(rssFeedUrl, { cache: 'no-store' });
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
@@ -69,7 +70,7 @@
         itemDiv.className = 'item';
         itemDiv.innerHTML = `
           <a href="${item.link}" target="_blank">
-            <img src="${item.imageUrl}" alt="${item.title}">
+            <img src="${item.imageUrl}" alt="${item.title}" loading="lazy">
             <h3>${item.title}</h3>
             <p>${item.content}</p>
           </a>
