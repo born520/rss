@@ -11,16 +11,15 @@
       background-color: #f8f8f8;
     }
     .container {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr); /* 항상 3열 */
-      grid-gap: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      margin: -10px;
     }
     .item {
       background-color: #fff;
-      margin-bottom: 20px;
+      margin: 10px;
       padding: 10px;
-      display: inline-block;
-      width: 100%;
+      flex: 1 0 30%; /* 기본 3열 */
       box-sizing: border-box;
       border: 1px solid #ddd;
       border-radius: 5px;
@@ -48,13 +47,13 @@
       color: #666;
     }
     @media (max-width: 1200px) {
-      .container {
-        grid-template-columns: repeat(2, 1fr); /* 작은 화면에서는 2열 */
+      .item {
+        flex: 1 0 45%; /* 작은 화면에서는 2열 */
       }
     }
     @media (max-width: 768px) {
-      .container {
-        grid-template-columns: 1fr; /* 태블릿에서는 1열 */
+      .item {
+        flex: 1 0 100%; /* 모바일에서는 1열 */
       }
     }
   </style>
@@ -62,6 +61,9 @@
 <body>
   <h1>뉴스피드</h1>
   <div class="container" id="rss-feed"></div>
+
+  <!-- Masonry.js 추가 -->
+  <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
 
   <script>
     const rssFeedUrl = 'https://script.google.com/macros/s/AKfycbx6k0-G1Uv6YHdMg2RP3uuFgrNVt1OgzWzchIKC53dXFut7EXNw4VlpWxN9M9_YSEM/exec';
@@ -94,6 +96,14 @@
       });
 
       container.appendChild(fragment);
+
+      // Masonry 초기화
+      new Masonry(container, {
+        itemSelector: '.item',
+        columnWidth: '.item',
+        percentPosition: true,
+        gutter: 20
+      });
     }
 
     async function fetchRSSFeed() {
