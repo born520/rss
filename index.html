@@ -19,7 +19,7 @@
       background-color: #fff;
       margin-bottom: 20px;
       padding: 10px;
-      width: calc(33.333% - 20px);
+      width: calc(20% - 20px); /* 5 columns */
       box-sizing: border-box;
       border: 1px solid #ddd;
       border-radius: 5px;
@@ -49,10 +49,15 @@
     }
     @media (max-width: 1200px) {
       .grid-item {
-        width: calc(50% - 20px); /* 2 columns for smaller screens */
+        width: calc(33.333% - 20px); /* 3 columns for medium screens */
       }
     }
     @media (max-width: 768px) {
+      .grid-item {
+        width: calc(50% - 20px); /* 2 columns for smaller screens */
+      }
+    }
+    @media (max-width: 480px) {
       .grid-item {
         width: calc(100% - 20px); /* 1 column for mobile screens */
       }
