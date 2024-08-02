@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RSS Feed Display</title>
+  <title>뉴스피드</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -39,10 +39,16 @@
       text-decoration: none;
       color: inherit;
     }
+    /* 모바일 대응 */
+    @media (max-width: 768px) {
+      .item {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>RSS Feed Items</h1>
+  <h1>뉴스피드</h1>
   <div class="container" id="rss-feed"></div>
 
   <script>
