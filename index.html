@@ -10,52 +10,50 @@
       margin: 20px;
       background-color: #f8f8f8;
     }
-    .container {
-      display: flex;
-      flex-wrap: wrap;
-      margin-left: -10px; /* Adjust for negative margins */
-      margin-right: -10px;
+    .grid {
+      width: auto;
+      margin-left: auto;
+      margin-right: auto;
     }
-    .item {
+    .grid-item {
       background-color: #fff;
-      margin: 10px;
+      margin-bottom: 20px;
       padding: 10px;
-      width: calc(33.333% - 20px); /* Always 3 columns with space for gutter */
+      width: calc(33.333% - 20px);
       box-sizing: border-box;
       border: 1px solid #ddd;
       border-radius: 5px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       transition: box-shadow 0.3s;
     }
-    .item:hover {
+    .grid-item:hover {
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
-    .item img {
+    .grid-item img {
       width: 100%;
       height: auto;
-      max-height: 200px; /* Adjust the max height for uniformity */
       border-radius: 5px;
       display: block;
-      object-fit: cover; /* Cover aspect to fill space */
+      object-fit: cover;
     }
-    .item h3 {
+    .grid-item h3 {
       margin-top: 10px;
       margin-bottom: 5px;
     }
-    .item a {
+    .grid-item a {
       text-decoration: none;
       color: inherit;
     }
-    .item p {
+    .grid-item p {
       color: #666;
     }
     @media (max-width: 1200px) {
-      .item {
+      .grid-item {
         width: calc(50% - 20px); /* 2 columns for smaller screens */
       }
     }
     @media (max-width: 768px) {
-      .item {
+      .grid-item {
         width: calc(100% - 20px); /* 1 column for mobile screens */
       }
     }
@@ -63,7 +61,7 @@
 </head>
 <body>
   <h1>뉴스피드</h1>
-  <div class="container" id="rss-feed"></div>
+  <div class="grid" id="rss-feed"></div>
 
   <!-- Masonry.js 추가 -->
   <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
@@ -87,7 +85,7 @@
 
       data.forEach(item => {
         const itemDiv = document.createElement('div');
-        itemDiv.className = 'item';
+        itemDiv.className = 'grid-item';
         itemDiv.innerHTML = `
           <a href="${item.link}" target="_blank">
             <img src="${item.imageUrl}" alt="${item.title}" loading="lazy">
@@ -102,8 +100,8 @@
 
       // Masonry 초기화
       new Masonry(container, {
-        itemSelector: '.item',
-        columnWidth: '.item',
+        itemSelector: '.grid-item',
+        columnWidth: '.grid-item',
         percentPosition: true,
         gutter: 20
       });
