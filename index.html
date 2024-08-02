@@ -65,6 +65,8 @@
 
   <!-- Masonry.js 추가 -->
   <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
+  <!-- imagesLoaded.js 추가 -->
+  <script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
 
   <script>
     const rssFeedUrl = 'https://script.google.com/macros/s/AKfycbx6k0-G1Uv6YHdMg2RP3uuFgrNVt1OgzWzchIKC53dXFut7EXNw4VlpWxN9M9_YSEM/exec';
@@ -98,12 +100,14 @@
 
       container.appendChild(fragment);
 
-      // Masonry 초기화
-      new Masonry(container, {
-        itemSelector: '.grid-item',
-        columnWidth: '.grid-item',
-        percentPosition: true,
-        gutter: 20
+      // 이미지가 모두 로드된 후 Masonry 초기화
+      imagesLoaded(container, function() {
+        new Masonry(container, {
+          itemSelector: '.grid-item',
+          columnWidth: '.grid-item',
+          percentPosition: true,
+          gutter: 20
+        });
       });
     }
 
