@@ -11,7 +11,7 @@
       background-color: #f8f8f8;
     }
     .container {
-      column-count: 4; /* 기본 4열 레이아웃 */
+      column-count: 3; /* 기본 3열 레이아웃 */
       column-gap: 20px;
     }
     .item {
@@ -48,17 +48,12 @@
     }
     @media (max-width: 1200px) {
       .container {
-        column-count: 3; /* 작은 화면에서는 3열 */
+        column-count: 2; /* 작은 화면에서는 2열 */
       }
     }
     @media (max-width: 768px) {
       .container {
-        column-count: 2; /* 태블릿에서는 2열 */
-      }
-    }
-    @media (max-width: 480px) {
-      .container {
-        column-count: 1; /* 모바일에서는 1열 */
+        column-count: 1; /* 태블릿에서는 1열 */
       }
     }
   </style>
