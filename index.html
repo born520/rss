@@ -11,8 +11,9 @@
       background-color: #f8f8f8;
     }
     .container {
-      column-count: 3; /* 기본 3열 레이아웃 */
-      column-gap: 20px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr); /* 항상 3열 */
+      grid-gap: 20px;
     }
     .item {
       background-color: #fff;
@@ -48,12 +49,12 @@
     }
     @media (max-width: 1200px) {
       .container {
-        column-count: 2; /* 작은 화면에서는 2열 */
+        grid-template-columns: repeat(2, 1fr); /* 작은 화면에서는 2열 */
       }
     }
     @media (max-width: 768px) {
       .container {
-        column-count: 1; /* 태블릿에서는 1열 */
+        grid-template-columns: 1fr; /* 태블릿에서는 1열 */
       }
     }
   </style>
