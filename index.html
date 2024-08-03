@@ -58,7 +58,7 @@
         overflow: hidden;
       }
       .swiper-slide {
-        width: calc(100% - 20px) !important; /* 1 column for mobile */
+        width: 100% !important; /* 1 column for mobile */
         box-sizing: border-box;
       }
     }
@@ -125,6 +125,8 @@
             nextEl: '.swiper-button-next',
             prevEl: '.swiper-button-prev',
           },
+          speed: 500, // 슬라이드 전환 속도
+          effect: 'slide', // 전환 효과
         });
       } else {
         // Desktop: Use Masonry
