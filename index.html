@@ -120,6 +120,15 @@
           swiperWrapper.appendChild(itemDiv);
         });
 
+        // Add navigation buttons
+        const nextButton = document.createElement('div');
+        nextButton.className = 'swiper-button-next';
+        container.appendChild(nextButton);
+
+        const prevButton = document.createElement('div');
+        prevButton.className = 'swiper-button-prev';
+        container.appendChild(prevButton);
+
         new Swiper('.swiper-container', {
           slidesPerView: 1,
           spaceBetween: 20,
