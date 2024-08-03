@@ -53,21 +53,25 @@
       }
     }
     @media (max-width: 768px) {
-      .grid-item {
-        width: calc(50% - 20px); /* 2 columns for smaller screens */
+      .swiper-container {
+        width: 100%;
+        overflow: hidden;
       }
-    }
-    @media (max-width: 480px) {
-      .grid-item {
-        width: calc(100% - 20px); /* 1 column for mobile screens */
+      .swiper-slide {
+        width: calc(100% - 20px) !important; /* 1 column for mobile */
+        box-sizing: border-box;
       }
     }
   </style>
+  <!-- Swiper CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
 </head>
 <body>
   <h1>뉴스피드</h1>
   <div class="grid" id="rss-feed"></div>
 
+  <!-- Swiper.js 추가 -->
+  <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
   <!-- Masonry.js 추가 -->
   <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
   <!-- imagesLoaded.js 추가 -->
@@ -88,32 +92,69 @@
     function displayRSSItems(data) {
       const container = document.getElementById('rss-feed');
       container.innerHTML = ''; // Clear existing content
-      const fragment = document.createDocumentFragment();
 
-      data.forEach(item => {
-        const itemDiv = document.createElement('div');
-        itemDiv.className = 'grid-item';
-        itemDiv.innerHTML = `
-          <a href="${item.link}" target="_blank">
-            <img src="${item.imageUrl}" alt="${item.title}" loading="lazy">
-            <h3>${item.title}</h3>
-            <p>${item.content}</p>
-          </a>
-        `;
-        fragment.appendChild(itemDiv);
-      });
+      // Mobile: Use Swiper
+      if (window.innerWidth <= 768) {
+        container.className = 'swiper-container';
+        const swiperWrapper = document.createElement('div');
+        swiperWrapper.className = 'swiper-wrapper';
+        container.appendChild(swiperWrapper);
 
-      container.appendChild(fragment);
-
-      // 이미지가 모두 로드된 후 Masonry 초기화
-      imagesLoaded(container, function() {
-        new Masonry(container, {
-          itemSelector: '.grid-item',
-          columnWidth: '.grid-item',
-          percentPosition: true,
-          gutter: 20
+        data.forEach(item => {
+          const itemDiv = document.createElement('div');
+          itemDiv.className = 'swiper-slide grid-item';
+          itemDiv.innerHTML = `
+            <a href="${item.link}" target="_blank">
+              <img src="${item.imageUrl}" alt="${item.title}" loading="lazy">
+              <h3>${item.title}</h3>
+              <p>${item.content}</p>
+            </a>
+          `;
+          swiperWrapper.appendChild(itemDiv);
         });
-      });
+
+        new Swiper('.swiper-container', {
+          slidesPerView: 1,
+          spaceBetween: 20,
+          loop: true,
+          pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+          },
+          navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          },
+        });
+      } else {
+        // Desktop: Use Masonry
+        const fragment = document.createDocumentFragment();
+
+        data.forEach(item => {
+          const itemDiv = document.createElement('div');
+          itemDiv.className = 'grid-item';
+          itemDiv.innerHTML = `
+            <a href="${item.link}" target="_blank">
+              <img src="${item.imageUrl}" alt="${item.title}" loading="lazy">
+              <h3>${item.title}</h3>
+              <p>${item.content}</p>
+            </a>
+          `;
+          fragment.appendChild(itemDiv);
+        });
+
+        container.appendChild(fragment);
+
+        // 이미지가 모두 로드된 후 Masonry 초기화
+        imagesLoaded(container, function() {
+          new Masonry(container, {
+            itemSelector: '.grid-item',
+            columnWidth: '.grid-item',
+            percentPosition: true,
+            gutter: 20
+          });
+        });
+      }
     }
 
     async function fetchRSSFeed() {
