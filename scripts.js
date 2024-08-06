@@ -1,102 +1,133 @@
-const scriptUrl = 'https://script.google.com/macros/s/AKfycbxoZIaPaQe_Pvb9QrvQWgjxAsx2jOIphAUJj0rZpjpoihvQtRXhdLrF484BeaFZf3cXqA/exec';
+const rssFeedUrl = 'https://script.google.com/macros/s/AKfycbx6k0-G1Uv6YHdMg2RP3uuFgrNVt1OgzWzchIKC53dXFut7EXNw4VlpWxN9M9_YSEM/exec';
 
-const CACHE_EXPIRATION_TIME = 3600000; // 1시간 (밀리초 단위)
-
-function loadVideos() {
-    const cachedData = localStorage.getItem('videoData');
-    const cacheTimestamp = localStorage.getItem('cacheTimestamp');
-
-    const now = new Date().getTime();
-
-    if (cachedData && cacheTimestamp && (now - cacheTimestamp < CACHE_EXPIRATION_TIME)) {
-        renderThumbnails(JSON.parse(cachedData));
-        lazyLoadImages();
-    } else {
-        fetch(scriptUrl)
-            .then(response => response.json())
-            .then(data => {
-                // 데이터 정렬: 최근 항목이 앞에 오도록 역순으로 정렬
-                const sortedData = data.reverse(); 
-                localStorage.setItem('videoData', JSON.stringify(sortedData));
-                localStorage.setItem('cacheTimestamp', now); // 타임스탬프 저장
-                renderThumbnails(sortedData);
-                lazyLoadImages();
-            })
-            .catch(error => {
-                console.error('Error loading data:', error);
-                document.getElementById('videoList').innerHTML = 'Failed to load videos.';
-            });
-    }
+function getLocalData() {
+  const data = localStorage.getItem('rssData');
+  return data ? JSON.parse(data) : [];
 }
 
-function renderThumbnails(data) {
-    const videoList = document.getElementById('videoList');
-    videoList.innerHTML = '';
-    data.forEach(entry => {
-        const videoItem = document.createElement('div');
-        videoItem.className = 'videoItem';
-        videoItem.onclick = () => showPopup(entry.videoId);
+function setLocalData(data) {
+  localStorage.setItem('rssData', JSON.stringify(data));
+}
 
-        const img = document.createElement('img');
-        img.dataset.src = entry.thumbnail; // 레이지 로딩을 위한 데이터 속성
-        img.alt = "Thumbnail";
-        img.className = 'thumbnail lazy'; // 레이지 클래스 추가
+function openYouTubePopup(url) {
+  const videoId = new URL(url).searchParams.get('v');
+  if (videoId) {
+    const popupUrl = `https://www.youtube.com/embed/${videoId}`;
+    const width = 560;
+    const height = 315;
+    const left = (screen.width - width) / 2;
+    const top = (screen.height - height) / 2;
+    window.open(popupUrl, 'YouTube Video', `width=${width},height=${height},left=${left},top=${top}`);
+  }
+}
 
-        const title = document.createElement('div');
-        title.className = 'title';
-        title.textContent = entry.title;
+function displayRSSItems(data) {
+  const container = document.getElementById('rss-feed');
+  container.innerHTML = ''; // Clear existing content
 
-        videoItem.appendChild(img);
-        videoItem.appendChild(title);
-        videoList.appendChild(videoItem);
+  // Mobile: Use Swiper
+  if (window.innerWidth <= 768) {
+    container.className = 'swiper-container';
+    const swiperWrapper = document.createElement('div');
+    swiperWrapper.className = 'swiper-wrapper';
+    container.appendChild(swiperWrapper);
+
+    data.forEach(item => {
+      const itemDiv = document.createElement('div');
+      itemDiv.className = 'swiper-slide grid-item';
+      itemDiv.innerHTML = `
+        <a href="${item.link}" data-is-youtube="${item.link.includes('youtube.com')}" target="_blank">
+          <img src="${item.imageUrl}" alt="${item.title}" loading="lazy">
+          <h3>${item.title}</h3>
+          <p>${item.content}</p>
+        </a>
+      `;
+      swiperWrapper.appendChild(itemDiv);
     });
+
+    // Add navigation buttons
+    const nextButton = document.createElement('div');
+    nextButton.className = 'swiper-button-next';
+    container.appendChild(nextButton);
+
+    const prevButton = document.createElement('div');
+    prevButton.className = 'swiper-button-prev';
+    container.appendChild(prevButton);
+
+    new Swiper('.swiper-container', {
+      slidesPerView: 1,
+      spaceBetween: 20,
+      loop: true,
+      pagination: {
+        el: '.swiper-pagination',
+        clickable: true,
+      },
+      navigation: {
+        nextEl: '.swiper-button-next',
+        prevEl: '.swiper-button-prev',
+      },
+      speed: 500, // 슬라이드 전환 속도
+      effect: 'slide', // 전환 효과
+    });
+  } else {
+    // Desktop: Use Masonry
+    const fragment = document.createDocumentFragment();
+
+    data.forEach(item => {
+      const itemDiv = document.createElement('div');
+      itemDiv.className = 'grid-item';
+      itemDiv.innerHTML = `
+        <a href="${item.link}" data-is-youtube="${item.link.includes('youtube.com')}" target="_blank">
+          <img src="${item.imageUrl}" alt="${item.title}" loading="lazy">
+          <h3>${item.title}</h3>
+          <p>${item.content}</p>
+        </a>
+      `;
+      fragment.appendChild(itemDiv);
+    });
+
+    container.appendChild(fragment);
+
+    // 이미지가 모두 로드된 후 Masonry 초기화
+    imagesLoaded(container, function() {
+      new Masonry(container, {
+        itemSelector: '.grid-item',
+        columnWidth: '.grid-item',
+        percentPosition: true,
+        gutter: 20
+      });
+    });
+  }
+
+  // 모든 링크에 클릭 이벤트 리스너 추가
+  const links = container.querySelectorAll('a[data-is-youtube="true"]');
+  links.forEach(link => {
+    link.addEventListener('click', function(event) {
+      event.preventDefault();
+      openYouTubePopup(this.href);
+    });
+  });
 }
 
-function lazyLoadImages() {
-    const lazyImages = [].slice.call(document.querySelectorAll("img.lazy"));
-
-    if ("IntersectionObserver" in window) {
-        let lazyImageObserver = new IntersectionObserver(function(entries, observer) {
-            entries.forEach(function(entry) {
-                if (entry.isIntersecting) {
-                    let lazyImage = entry.target;
-                    lazyImage.src = lazyImage.dataset.src;
-                    lazyImage.classList.remove("lazy");
-                    lazyImageObserver.unobserve(lazyImage);
-                }
-            });
-        });
-
-        lazyImages.forEach(function(lazyImage) {
-            lazyImageObserver.observe(lazyImage);
-        });
-    } else {
-        // Fallback for older browsers
-        lazyImages.forEach(function(lazyImage) {
-            lazyImage.src = lazyImage.dataset.src;
-        });
+async function fetchRSSFeed() {
+  try {
+    const response = await fetch(rssFeedUrl, { cache: 'no-store' });
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
     }
+    const data = await response.json();
+    displayRSSItems(data);
+    setLocalData(data); // Update local storage with new data
+  } catch (error) {
+    console.error('Error fetching the RSS feed:', error);
+  }
 }
 
-function showPopup(videoId) {
-    const popup = document.getElementById('popup');
-    const overlay = document.getElementById('overlay');
-    const videoPlayer = document.getElementById('videoPlayer');
-
-    videoPlayer.innerHTML = `<iframe width="100%" height="315" src="https://www.youtube.com/embed/${videoId}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
-    
-    popup.style.display = 'block';
-    overlay.style.display = 'block';
+// Initial load from local storage
+const localData = getLocalData();
+if (localData.length > 0) {
+  displayRSSItems(localData);
 }
 
-function closePopup() {
-    const popup = document.getElementById('popup');
-    const overlay = document.getElementById('overlay');
-    const videoPlayer = document.getElementById('videoPlayer');
-
-    popup.style.display = 'none';
-    overlay.style.display = 'none';
-    videoPlayer.innerHTML = '';
-}
-
-document.addEventListener('DOMContentLoaded', loadVideos);
+// Fetch and update from network
+fetchRSSFeed();
